@@ -16,7 +16,7 @@ import pyodbc
 
 # Connexion à la base de données MS Access
 conn_str = (
-    r'DRIVER={SQL Server Native Client 10.0};'
+    r'DRIVER={SQL Server};'
     r'SERVER=DBSQLQCQCRF02;'
     r'APP=Microsoft Office;'
     r'DATABASE=Laboratoire;'
