@@ -1,5 +1,6 @@
 altgraph==0.17.4
 atomicwrites==1.4.1
+gunicorn
 attrs==23.2.0
 auto-py-to-exe==2.44.1
 blinker==1.8.2
@@ -101,5 +102,3 @@ yarg==0.1.9
 yolk3k==0.9
 zipp==3.19.2
 zope.event==5.0
-zope.interface==6.3
-gunicorn
