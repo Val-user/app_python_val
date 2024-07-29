@@ -47,6 +47,7 @@ def init_dashboard():
     METHOD_NAMES_FILE = 'method_names.json'
     COMMENTS_FILE = 'comments.json'
     TABLE_DATA_FILE = 'H:\\python LV8 v.2\\table_data.json'
+    DATA_TABLE = "G:\laboratoire\\02 Suivi statistique\\2-Programmes d'échange\\Compilation PTP 2024+.xlsx"
 
     def read_json(file_path):
         if os.path.exists(file_path):
@@ -525,7 +526,7 @@ dag.AgGrid(
          Input('stored-method-names', 'data')]
     )
     def update_dropdown(n, stored_names):
-        df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         methods = df['Method'].unique()
         options = [{'label': stored_names.get(method, method), 'value': method} for method in methods] if stored_names else [{'label': method, 'value': method} for method in methods]
         return options
@@ -536,7 +537,7 @@ dag.AgGrid(
     [Input('method-dropdown', 'value')]
     )
     def update_first_letter_options(selected_method):
-        df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         if selected_method:
             filtered_df = df[df['Method'] == selected_method]
             first_letters = sorted(filtered_df['NOM'].str[0].unique())
@@ -556,7 +557,7 @@ dag.AgGrid(
             if stored_table_data:
                 return stored_table_data
             else:
-                df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+                df = pd.read_excel(DATA_TABLE, sheet_name='All')
                 df = convert_units(df)
                 methods = df['Method'].unique()
                 initial_data = [{'Method': method, 'LV8 Param': '', 'LV8 Test': ''} for method in methods]
@@ -572,7 +573,7 @@ dag.AgGrid(
         if stored_table_data:
             return stored_table_data
 
-        df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         df = convert_units(df)
         methods = df['Method'].unique()
         initial_data = [{'Method': method, 'LV8 Param': '', 'LV8 Test': ''} for method in methods]
@@ -684,7 +685,7 @@ dag.AgGrid(
         if n_clicks is None:
             return []
     
-        df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         df = convert_units(df)
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
         df['Z-Score'] = pd.to_numeric(df['Z-Score'], errors='coerce')
@@ -772,7 +773,7 @@ dag.AgGrid(
 )
     def update_graphs_and_table(selected_method, first_letter, n, checklist1, checklist2, num_values, methods_table_data):
         selected_columns = checklist1 + checklist2  # Combiner les valeurs des trois Checklists
-        df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         df = convert_units(df)
 
     # Convertir la colonne 'Date' en format datetime
