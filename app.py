@@ -40,6 +40,7 @@ def init_dashboard(server):
         url_base_pathname='/dashboard/',
         external_stylesheets=[dbc.themes.BOOTSTRAP, "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"]  # Ajout de FontAwesome
     )
+    server = app.server
     
     
     
@@ -976,7 +977,7 @@ dag.AgGrid(
     return app.server
 
 
-app = Flask(__name__, static_folder='assets')
+app = Flask(__name__)
 
 app = init_dashboard(app)
 
