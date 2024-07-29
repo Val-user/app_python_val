@@ -33,7 +33,7 @@ import pyodbc
 #data = pd.read_sql(query, conn)
 #conn.close()
 
-def init_dashboard(server):
+def init_dashboard():
     app = dash.Dash(
         __name__, 
         url_base_pathname='/dashboard/',
@@ -973,12 +973,12 @@ dag.AgGrid(
 
         return z_score_fig, z_score_moving_avg_fig, delta_moving_avg_fig, z_prime_fig, column_defs, row_data
 
-    return app.server
+    return server
 
 
 app = Flask(__name__)
 
-app = init_dashboard(app)
+app = init_dashboard()
 
 if __name__ == '__main__':
     app.run(debug=True)
