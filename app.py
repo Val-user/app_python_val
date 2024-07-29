@@ -36,7 +36,6 @@ import pyodbc
 def init_dashboard():
     app = dash.Dash(
         __name__, 
-        url_base_pathname='/dashboard/',
         external_stylesheets=[dbc.themes.BOOTSTRAP, "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"]  # Ajout de FontAwesome
     )
     server = app.server
