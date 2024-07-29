@@ -13,26 +13,25 @@ import pyodbc
 
 
 
-
 # Connexion à la base de données MS Access
-conn_str = (
-    r'DRIVER={SQL Server};'
-    r'SERVER=DBSQLQCQCRF02;'
-    r'APP=Microsoft Office;'
-    r'DATABASE=Laboratoire;'
-    r'Trusted_Connection=yes;'
-)
-conn = pyodbc.connect(conn_str)
+#conn_str = (
+#    r'DRIVER={SQL Server};'
+#    r'SERVER=DBSQLQCQCRF02;'
+#    r'APP=Microsoft Office;'
+#    r'DATABASE=Laboratoire;'
+#    r'Trusted_Connection=yes;'
+#)
+#conn = pyodbc.connect(conn_str)
 
 # Récupérer les données de la base de données
-query = '''
-    SELECT NAIS_SAMPLES.SAMPLE_DATE, NAIS_SAMPLES.USER_SAMPLEID, NAIS_RESULTS.TESTID, NAIS_RESULTS.PROPERTYID, NAIS_RESULTS.NUMBER_VALUE
-    FROM NAIS_SAMPLES
-    INNER JOIN NAIS_RESULTS ON NAIS_SAMPLES.SAMPLE_ID = NAIS_RESULTS.SAMPLE_ID
-    WHERE (((NAIS_SAMPLES.USER_SAMPLEID) Like '5069%') AND ((NAIS_RESULTS.NUMBER_VALUE) Is Not Null));
-'''
-data = pd.read_sql(query, conn)
-conn.close()
+#query = '''
+#    SELECT NAIS_SAMPLES.SAMPLE_DATE, NAIS_SAMPLES.USER_SAMPLEID, NAIS_RESULTS.TESTID, NAIS_RESULTS.PROPERTYID, NAIS_RESULTS.NUMBER_VALUE
+#    FROM NAIS_SAMPLES
+#    INNER JOIN NAIS_RESULTS ON NAIS_SAMPLES.SAMPLE_ID = NAIS_RESULTS.SAMPLE_ID
+#    WHERE (((NAIS_SAMPLES.USER_SAMPLEID) Like '5069%') AND ((NAIS_RESULTS.NUMBER_VALUE) Is Not Null));
+#'''
+#data = pd.read_sql(query, conn)
+#conn.close()
 
 def init_dashboard(server):
     app = dash.Dash(
@@ -41,7 +40,6 @@ def init_dashboard(server):
         url_base_pathname='/dashboard/',
         external_stylesheets=[dbc.themes.BOOTSTRAP, "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"]  # Ajout de FontAwesome
     )
-    server = app.server
     
     
     # Définir le chemin du fichier JSON pour le stockage des noms des méthodes
@@ -88,10 +86,10 @@ def init_dashboard(server):
             return equivalence['LV8 Param'], equivalence['LV8 Test']
         return None, None
     
-    def create_tables_and_calculate_std(property_id, test_id):
-        filtered_df = data[(data['PROPERTYID'] == property_id) & (data['TESTID'] == test_id[:-1])]
-        return filtered_df['NUMBER_VALUE'].std()
-
+#    def create_tables_and_calculate_std(property_id, test_id):
+#        filtered_df = data[(data['PROPERTYID'] == property_id) & (data['TESTID'] == test_id[:-1])]
+#        return filtered_df['NUMBER_VALUE'].std()
+ 
 
     # Liste initiale des colonnes disponibles
     initial_columns = [
@@ -790,14 +788,14 @@ dag.AgGrid(
         filtered_df = filtered_df.dropna(subset=['Z-Score']).sort_values(by='Date').tail(num_values)
 
         property_id, test_id = get_equivalences(selected_method, methods_table_data)
-        std_number_value = create_tables_and_calculate_std(property_id, test_id) if property_id and test_id else None
+#        std_number_value = create_tables_and_calculate_std(property_id, test_id) if property_id and test_id else None
 
-        if std_number_value is not None:
-            delta = filtered_df['Result'] - filtered_df['Average']
-            z_prime = delta / (std_number_value + (filtered_df['Std Dev'] / filtered_df['Count'])) ** (1 / 2)
-            z_prime = z_prime.apply(lambda x: round(x, 2))
-        else:
-            z_prime = pd.Series([np.nan] * len(filtered_df))
+#        if std_number_value is not None:
+#            delta = filtered_df['Result'] - filtered_df['Average']
+#            z_prime = delta / (std_number_value + (filtered_df['Std Dev'] / filtered_df['Count'])) ** (1 / 2)
+#            z_prime = z_prime.apply(lambda x: round(x, 2))
+#        else:
+ #           z_prime = pd.Series([np.nan] * len(filtered_df))
 
         z_scores = filtered_df['Z-Score'].tolist()
         e_scores = np.round(filtered_df['Result'] - filtered_df['Average'], 2)
@@ -818,6 +816,9 @@ dag.AgGrid(
         filtered_df['RunSum'] = runsum
         filtered_df['Som'] = som
         filtered_df['e_scores'] = e_scores
+
+        
+        z_prime = z_scores
 
         
         z_score_avg = np.nanmean(z_scores)
@@ -977,7 +978,6 @@ app = init_dashboard(app)
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 
 
