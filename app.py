@@ -733,9 +733,10 @@ dag.AgGrid(
      Input('first-letter-dropdown', 'value'),
      Input('stored-method-names', 'data')]
     )    
-    def update_graphs_title(selected_method, first_letter, stored_names):
-        if not selected_method:
-            return html.H2('Dashboard', style={'font-family': 'Calibri'})
+    def update_graphs_title(selected_method, stored_names=None):
+        if stored_names is None:
+            stored_names = {}
+        method_name = stored_names.get(selected_method, selected_method)
 
         method_name = stored_names.get(selected_method, selected_method)
         if first_letter:
