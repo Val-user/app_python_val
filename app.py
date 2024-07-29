@@ -38,7 +38,7 @@ def init_dashboard():
         __name__, 
 
     )
-    server = app.server
+    
     
     
     
@@ -972,7 +972,7 @@ dag.AgGrid(
 
         return z_score_fig, z_score_moving_avg_fig, delta_moving_avg_fig, z_prime_fig, column_defs, row_data
 
-    return server
+    return app.server
 
 
 app = Flask(__name__)
