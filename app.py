@@ -655,6 +655,8 @@ dag.AgGrid(
         return som
 
     def calculate_moving_average(data, window_size):
+        if window_size < 1:
+            window_size = 1
         data = np.array(data, dtype=np.float64)
         return pd.Series(data).rolling(window=window_size, min_periods=1).mean().tolist()
     
