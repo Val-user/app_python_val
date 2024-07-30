@@ -5,6 +5,7 @@ import dash_ag_grid as dag
 from dash.dependencies import Input, Output, State
 import pandas as pd
 import numpy as np
+import webbrowser
 import json
 import os
 import dash_draggable
@@ -37,29 +38,11 @@ def init_dashboard():
     app = dash.Dash(
         __name__, 
         external_stylesheets=[dbc.themes.BOOTSTRAP, "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"]
+
     )
     
     
     
-    
-    
-    # Définir le chemin du fichier JSON pour le stockage des noms des méthodes
-    METHOD_NAMES_FILE = 'method_names.json'
-    COMMENTS_FILE = 'comments.json'
-    TABLE_DATA_FILE = 'H:\\python LV8 v.2\\table_data.json'
-    DATA_TABLE = "G:\laboratoire\\02 Suivi statistique\\2-Programmes d'échange\\Compilation PTP 2024+.xlsx"
-
-    def read_json(file_path):
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as file:
-                return json.load(file)
-        return {}
-
-    def write_json(file_path, data):
-        with open(file_path, 'w') as file:
-            json.dump(data, file)
-            
-
     def convert_units(df):
     # Ensure 'Result' is numeric and handle conversion errors
         df['Result'] = pd.to_numeric(df['Result'], errors='coerce')
@@ -77,6 +60,27 @@ def init_dashboard():
         df.loc[mask, 'Units'] = '°C'
     
         return df
+
+    
+    
+    # Définir le chemin du fichier JSON pour le stockage des noms des méthodes
+    METHOD_NAMES_FILE = 'method_names.json'
+    COMMENTS_FILE = 'comments.json'
+    TABLE_DATA_FILE = 'H:\\python LV8 v.2\\table_data.json'
+    DATA_TABLE = "G:\\laboratoire\\02 Suivi statistique\\2-Programmes d'échange\\Compilation PTP 2024+.xlsx"
+    df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+    convert_df = convert_units(df)
+
+    def read_json(file_path):
+        if os.path.exists(file_path):
+            with open(file_path, 'r') as file:
+                return json.load(file)
+        return {}
+
+    def write_json(file_path, data):
+        with open(file_path, 'w') as file:
+            json.dump(data, file)
+            
 
 
 
@@ -526,7 +530,7 @@ dag.AgGrid(
          Input('stored-method-names', 'data')]
     )
     def update_dropdown(n, stored_names):
-        df = pd.read_excel(DATA_TABLE, sheet_name='All')
+        
         methods = df['Method'].unique()
         options = [{'label': stored_names.get(method, method), 'value': method} for method in methods] if stored_names else [{'label': method, 'value': method} for method in methods]
         return options
@@ -537,7 +541,6 @@ dag.AgGrid(
     [Input('method-dropdown', 'value')]
     )
     def update_first_letter_options(selected_method):
-        df = pd.read_excel(DATA_TABLE, sheet_name='All')
         if selected_method:
             filtered_df = df[df['Method'] == selected_method]
             first_letters = sorted(filtered_df['NOM'].str[0].unique())
@@ -557,8 +560,7 @@ dag.AgGrid(
             if stored_table_data:
                 return stored_table_data
             else:
-                df = pd.read_excel(DATA_TABLE, sheet_name='All')
-                df = convert_units(df)
+                df = convert_df
                 methods = df['Method'].unique()
                 initial_data = [{'Method': method, 'LV8 Param': '', 'LV8 Test': ''} for method in methods]
                 return initial_data
@@ -573,8 +575,7 @@ dag.AgGrid(
         if stored_table_data:
             return stored_table_data
 
-        df = pd.read_excel(DATA_TABLE, sheet_name='All')
-        df = convert_units(df)
+        df = convert_df
         methods = df['Method'].unique()
         initial_data = [{'Method': method, 'LV8 Param': '', 'LV8 Test': ''} for method in methods]
         return initial_data
@@ -685,8 +686,7 @@ dag.AgGrid(
         if n_clicks is None:
             return []
     
-        df = pd.read_excel(DATA_TABLE, sheet_name='All')
-        df = convert_units(df)
+        df = convert_df
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
         df['Z-Score'] = pd.to_numeric(df['Z-Score'], errors='coerce')
         df['Result'] = pd.to_numeric(df['Result'], errors='coerce')
@@ -734,10 +734,9 @@ dag.AgGrid(
      Input('first-letter-dropdown', 'value'),
      Input('stored-method-names', 'data')]
     )    
-    def update_graphs_title(selected_method, stored_names=None):
-        if stored_names is None:
-            stored_names = {}
-        method_name = stored_names.get(selected_method, selected_method)
+    def update_graphs_title(selected_method, first_letter, stored_names):
+        if not selected_method:
+            return html.H2('Dashboard', style={'font-family': 'Calibri'})
 
         method_name = stored_names.get(selected_method, selected_method)
         if first_letter:
@@ -773,8 +772,7 @@ dag.AgGrid(
 )
     def update_graphs_and_table(selected_method, first_letter, n, checklist1, checklist2, num_values, methods_table_data):
         selected_columns = checklist1 + checklist2  # Combiner les valeurs des trois Checklists
-        df = pd.read_excel(DATA_TABLE, sheet_name='All')
-        df = convert_units(df)
+        df = convert_df
 
     # Convertir la colonne 'Date' en format datetime
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
@@ -983,7 +981,6 @@ app = init_dashboard()
 
 if __name__ == '__main__':
     app.run(debug=True)
-
 
 
 
