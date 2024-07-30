@@ -45,18 +45,7 @@ def init_dashboard():
     
         return df
     
-    connection = pymssql.connect(
-        server='DBSQLQCQCRF02',
-        database='Laboratoire'
-    )
-
-    query = '''
-        SELECT NAIS_SAMPLES.SAMPLE_DATE, NAIS_SAMPLES.USER_SAMPLEID, NAIS_RESULTS.TESTID, NAIS_RESULTS.PROPERTYID, NAIS_RESULTS.NUMBER_VALUE
-        FROM NAIS_SAMPLES
-        INNER JOIN NAIS_RESULTS ON NAIS_SAMPLES.SAMPLE_ID = NAIS_RESULTS.SAMPLE_ID
-        WHERE (((NAIS_SAMPLES.USER_SAMPLEID) Like '5069%') AND ((NAIS_RESULTS.NUMBER_VALUE) Is Not Null));
-    '''
-    data = pd.read_sql(query, connection)
+    data = pd.read_csv('data.csv')
 
     
     
