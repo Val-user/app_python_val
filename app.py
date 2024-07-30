@@ -44,27 +44,9 @@ def init_dashboard():
         df.loc[mask, 'Units'] = '°C'
     
         return df
-    
-    # Connexion à la base de données MS Access
-    connection_string = (
-            "mssql+pyodbc://@DBSQLQCQCRF02/Laboratoire"
-            "?trusted_connection=yes&driver=SQL+Server+Native+Client+10.0"
-        )
-    engine = create_engine(connection_string)
-    
 
-    # Récupérer les données de la base de données
-    query = '''
-        SELECT NAIS_SAMPLES.SAMPLE_DATE, NAIS_SAMPLES.USER_SAMPLEID, NAIS_RESULTS.TESTID, NAIS_RESULTS.PROPERTYID, NAIS_RESULTS.NUMBER_VALUE
-        FROM NAIS_SAMPLES
-        INNER JOIN NAIS_RESULTS ON NAIS_SAMPLES.SAMPLE_ID = NAIS_RESULTS.SAMPLE_ID
-        WHERE (((NAIS_SAMPLES.USER_SAMPLEID) Like '5069%') AND ((NAIS_RESULTS.NUMBER_VALUE) Is Not Null));
-    '''
-    data = pd.read_sql(query, engine)
-
-
-
-    
+    response = requests.get('http://localhost:5000/api/v1/resources/data/all')
+    data = pd.DataFrame(response.json())
     
     # Définir le chemin du fichier JSON pour le stockage des noms des méthodes
     METHOD_NAMES_FILE = 'method_names.json'
