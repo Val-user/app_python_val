@@ -1,5 +1,6 @@
 ﻿altgraph==0.17.4
 auto-py-to-exe==2.44.1
+pymssql
 gunicorn
 blinker==1.8.2
 bottle==0.12.25
