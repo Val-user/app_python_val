@@ -5,15 +5,15 @@ import dash_ag_grid as dag
 from dash.dependencies import Input, Output, State
 import pandas as pd
 import numpy as np
-import requests
-import pymssql
 import json
 import os
 import dash_draggable
 import sqlalchemy as sa
 from sqlalchemy import create_engine
+import requests
 from flask import Flask
 import pyodbc
+
 
 
 
@@ -46,20 +46,21 @@ def init_dashboard():
     
         return df
 
-# Connexion à la base de données MS SQL Server via pymssql
-    connection_string = "mssql+pymssql://@DBSQLQCQCRF02/Laboratoire"
+    
 
-# Remplacer <username> et <password> par tes informations d'identification SQL Server
-    engine = create_engine(connection_string)
+            
+    # Fonction pour récupérer les données depuis l'API
+    def fetch_data():
+        response = requests.get('http://10.5.50.18:5000/data')
+        data = response.json()
+        return pd.DataFrame(data)
 
-    query = '''
-    SELECT NAIS_SAMPLES.SAMPLE_DATE, NAIS_SAMPLES.USER_SAMPLEID, NAIS_RESULTS.TESTID, NAIS_RESULTS.PROPERTYID, NAIS_RESULTS.NUMBER_VALUE
-    FROM NAIS_SAMPLES
-    INNER JOIN NAIS_RESULTS ON NAIS_SAMPLES.SAMPLE_ID = NAIS_RESULTS.SAMPLE_ID
-    WHERE (((NAIS_SAMPLES.USER_SAMPLEID) Like '5069%') AND ((NAIS_RESULTS.NUMBER_VALUE) Is Not Null));
-    '''
+# Récupérer les données
+    data = fetch_data()
 
-    data = pd.read_sql(query, engine)
+
+
+    
     
     # Définir le chemin du fichier JSON pour le stockage des noms des méthodes
     METHOD_NAMES_FILE = 'method_names.json'
@@ -978,7 +979,7 @@ app = Flask(__name__)
 app = init_dashboard()
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0', port=8050)
 
 
 
