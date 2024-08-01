@@ -50,15 +50,18 @@ def init_dashboard():
 
             
     # Fonction pour récupérer les données depuis l'API
-    def fetch_data():
-        response = requests.get('http://10.5.50.18:5000/data')
-        data = response.json()
-        return pd.DataFrame(data)
+   # def fetch_data():
+  ##      response = requests.get('http://10.5.50.18:5000/data')
+  #      data = response.json()
+  #      return pd.DataFrame(data)
 
 # Récupérer les données
-    data = fetch_data()
+  #  data = fetch_data()
 
-
+    response = requests.get('http://127.0.0.1:5000/api/data?sheet_name=All')
+    data2 = response.json()
+    df = pd.DataFrame(data2)
+    
 
     
     
@@ -67,7 +70,8 @@ def init_dashboard():
     COMMENTS_FILE = 'comments.json'
     TABLE_DATA_FILE = 'H:\\python LV8 v.2\\table_data.json'
     DATA_TABLE = "G:\\laboratoire\\02 Suivi statistique\\2-Programmes d'échange\\Compilation PTP 2024+.xlsx"
-    df = pd.read_excel('Compilation PTP 2024+.xlsx', sheet_name='All')
+    df = pd.read_excel(DATA_TABLE, sheet_name='All')
+    df['Date'] = pd.to_datetime(df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
     convert_df = convert_units(df)
 
     def read_json(file_path):
@@ -91,9 +95,9 @@ def init_dashboard():
             return equivalence['LV8 Param'], equivalence['LV8 Test']
         return None, None
     
-    def create_tables_and_calculate_std(property_id, test_id):
-        filtered_df = data[(data['PROPERTYID'] == property_id) & (data['TESTID'] == test_id[:-1])]
-        return filtered_df['NUMBER_VALUE'].std()
+   # def create_tables_and_calculate_std(property_id, test_id):
+  #      filtered_df = data[(data['PROPERTYID'] == property_id) & (data['TESTID'] == test_id[:-1])]
+  #      return filtered_df['NUMBER_VALUE'].std()
  
 
     # Liste initiale des colonnes disponibles
@@ -125,7 +129,7 @@ def init_dashboard():
                     dbc.Row(
                         [
                             dbc.Col(
-                                html.Img(src='/assets/logo.png', height="40px"),  # Chemin relatif vers l'image dans le dossier assets
+                                html.Img(src='/logo.png', height="40px"),  # Chemin relatif vers l'image dans le dossier assets
                                 width="auto"
                             ),
                             dbc.Col(
@@ -176,11 +180,12 @@ def init_dashboard():
                                     className="mb-2",
                                     style={'marginTop': '5px'}
                                 ),
-                                width="auto"
+                                width="auto",
+                                className="ml-auto"
                             )
                         ],
                         align="center",
-                        style={'display': 'flex', 'alignItems': 'center', 'width': '100%'}  # Centrer verticalement la rangée
+                        style={'width': '100%'}  # Centrer verticalement la rangée
                     ),
                     dbc.Modal(
                         [
@@ -237,7 +242,7 @@ def init_dashboard():
                                         )
                                     ),
                                     dbc.ModalFooter(
-                                        dbc.Button("Close", id="close-summary-modal", className="ml-auto")
+                                        dbc.Button("Ok", id="close-summary-modal", className="ml-auto")
                                     )
                                 ],
                                 id="summary-modal",
@@ -364,7 +369,7 @@ dbc.Collapse(
                             dbc.Row(
                                 [
                                     dbc.Col(
-                                        dbc.Button([html.I(className="fas fa-file-alt"), " Summary"], id="open-summary-modal", color="info", className="mb-2 w-100", style={'marginTop': '5px', 'marginRight' : '10px'}),
+                                        dbc.Button([html.I(className="fas fa-file-alt"), "Sommaire"], id="open-summary-modal", color="info", className="mb-2 w-100", style={'marginTop': '5px', 'marginRight' : '10px'}),
                                         width= '6',
                                         className="ml-auto mr-auto"
                                     ),
@@ -377,7 +382,8 @@ dbc.Collapse(
                             ),
                             dbc.Row(
                                 dbc.Col(
-                                    dbc.Button("Close", id="close-modal", className="ml-auto mt-3")
+                                    dbc.Button("Ok", id="close-modal", className="ml-auto mt-3"),
+                                    width={"size": "auto", "offset": 10} 
                                 )
                             )
                         ]
@@ -772,9 +778,11 @@ dag.AgGrid(
     def update_graphs_and_table(selected_method, first_letter, n, checklist1, checklist2, num_values, methods_table_data):
         selected_columns = checklist1 + checklist2  # Combiner les valeurs des trois Checklists
         df = convert_df
+        
 
     # Convertir la colonne 'Date' en format datetime
         df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce').dt.strftime('%Y-%m-%d')
 
     # Convertir la colonne 'Z-Score' en numérique
         df['Z-Score'] = pd.to_numeric(df['Z-Score'], errors='coerce')
@@ -790,14 +798,14 @@ dag.AgGrid(
         filtered_df = filtered_df.dropna(subset=['Z-Score']).sort_values(by='Date').tail(num_values)
 
         property_id, test_id = get_equivalences(selected_method, methods_table_data)
-        std_number_value = create_tables_and_calculate_std(property_id, test_id) if property_id and test_id else None
+   #     std_number_value = create_tables_and_calculate_std(property_id, test_id) if property_id and test_id else None
 
-        if std_number_value is not None:
-            delta = filtered_df['Result'] - filtered_df['Average']
-            z_prime = delta / (std_number_value + (filtered_df['Std Dev'] / filtered_df['Count'])) ** (1 / 2)
-            z_prime = z_prime.apply(lambda x: round(x, 2))
-        else:
-            z_prime = pd.Series([np.nan] * len(filtered_df))
+  #     if std_number_value is not None:
+   #         delta = filtered_df['Result'] - filtered_df['Average']
+  #          z_prime = delta / (std_number_value + (filtered_df['Std Dev'] / filtered_df['Count'])) ** (1 / 2)
+  #          z_prime = z_prime.apply(lambda x: round(x, 2))
+   #     else:
+   #         z_prime = pd.Series([np.nan] * len(filtered_df))
 
         z_scores = filtered_df['Z-Score'].tolist()
         e_scores = np.round(filtered_df['Result'] - filtered_df['Average'], 2)
@@ -818,6 +826,7 @@ dag.AgGrid(
         filtered_df['RunSum'] = runsum
         filtered_df['Som'] = som
         filtered_df['e_scores'] = e_scores
+        z_prime = z_scores
 
         
         
@@ -846,7 +855,7 @@ dag.AgGrid(
             'annotations': [
                 {
                     'x': 1, 'y': 1.1, 'xref': 'paper', 'yref': 'paper',
-                    'text': f'Avg: {z_score_avg:.2f}', 'showarrow': False,
+                    'text': f'Valeur moyenne: {z_score_avg:.2f}', 'showarrow': False,
                     'xanchor': 'right', 'yanchor': 'top'
                 }
             ]
@@ -871,7 +880,7 @@ dag.AgGrid(
             'annotations': [
                 {
                     'x': 1, 'y': 1.1, 'xref': 'paper', 'yref': 'paper',
-                    'text': f"Avg: {z_prime_avg:.2f}", 'showarrow': False,
+                    'text': f"Valeur moyenne: {z_prime_avg:.2f}", 'showarrow': False,
                     'xanchor': 'right', 'yanchor': 'top'
                 }
             ]
@@ -893,7 +902,7 @@ dag.AgGrid(
             'annotations': [
                 {
                     'x': 1, 'y': 1.1, 'xref': 'paper', 'yref': 'paper',
-                    'text': f'Avg: {z_score_moving_avg_avg:.2f}', 'showarrow': False,
+                    'text': f'Valeur moyenne: {z_score_moving_avg_avg:.2f}', 'showarrow': False,
                     'xanchor': 'right', 'yanchor': 'top'
                 }
             ]
@@ -914,7 +923,7 @@ dag.AgGrid(
             'annotations': [
                 {
                     'x': 1, 'y': 1.1, 'xref': 'paper', 'yref': 'paper',
-                    'text': f'Avg: {delta_moving_avg_avg:.2f}', 'showarrow': False,
+                    'text': f'Valeur moyenne: {delta_moving_avg_avg:.2f}', 'showarrow': False,
                     'xanchor': 'right', 'yanchor': 'top'
                 }
             ]
@@ -926,20 +935,21 @@ dag.AgGrid(
 
     # Mettre à jour les colonnes du tableau selon la sélection de l'utilisateur
         full_column_defs = [
-        {'field': 'Date', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'NOM', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Units', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Z-Score', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Result', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Average', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Std Dev', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Count', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'e_scores', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Rdat', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Rpub', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
-        {'field': 'Comment', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Date', 'headerName':'Date', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'NOM', 'headerName':'Nom', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Units', 'headerName':'Unité', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Z-Score', 'headerName':'Score Z', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Result', 'headerName':'Résultat', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Average', 'headerName':'Moyenne', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Std Dev', 'headerName':'Écart type', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Count', 'headerName':'Nombre', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'e_scores', 'headerName':'Score E', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Rdat', 'headerName':'R_dat', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Rpub', 'headerName':'R_pub', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
+        {'field': 'Comment', 'headerName':'Commentaire', 'cellStyle': {'color': 'black', 'flex': '1 1 auto'}},
         {
             'field': 'RunSum',
+            'headerName':'RunSum',
             'cellStyle': {
                 'flex': '1 1 auto',
                 'styleConditions': [
@@ -952,6 +962,7 @@ dag.AgGrid(
         },
         {
             'field': 'Som',
+            'headerName':'Somme',
             'cellStyle': {
                 'flex': '1 1 auto',
                 'styleConditions': [
@@ -979,7 +990,7 @@ app = Flask(__name__)
 app = init_dashboard()
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=8050)
+    app.run(host='0.0.0.0', port=8050)
 
 
 
