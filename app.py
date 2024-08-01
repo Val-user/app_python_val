@@ -58,7 +58,7 @@ def init_dashboard():
 # Récupérer les données
   #  data = fetch_data()
 
-    response = requests.get('http://127.0.0.1:5000/api/data?sheet_name=All')
+    response = requests.get('http://10.5.50.18:5000/api/data?sheet_name=All')
     data2 = response.json()
     df = pd.DataFrame(data2)
     
